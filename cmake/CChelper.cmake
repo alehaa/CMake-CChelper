@@ -35,6 +35,7 @@ if (ENABLE_WARNINGS)
 
 
 	# Enable warnings for compilers
+	list(REMOVE_DUPLICATES languages)
 	foreach (lang ${languages})
 		if ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Clang" OR
 		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "GNU" OR
@@ -79,6 +80,7 @@ if (ENABLE_PEDANTIC)
 
 
 	# Enable warnings for compilers
+	list(REMOVE_DUPLICATES languages)
 	foreach (lang ${languages})
 		if ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Clang" OR
 		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "GNU" OR
