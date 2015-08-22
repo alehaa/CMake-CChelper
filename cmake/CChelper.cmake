@@ -20,14 +20,28 @@ option(ENABLE_WARNINGS
 )
 
 if (ENABLE_WARNINGS)
+	# search for supported and enabled languages
+	get_property(ENABLED_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+
+	list(FIND ENABLED_LANGUAGES "C" LANG_C_ENABLED)
+	if (${LANG_C_ENABLED} EQUAL 0)
+		list(APPEND languages C)
+	endif ()
+
+	list(FIND ENABLED_LANGUAGES "CXX" LANG_CXX_ENABLED)
+	if (${LANG_CXX_ENABLED} EQUAL 0)
+		list(APPEND languages CXX)
+	endif ()
+
+
 	# Enable warnings for compilers
-	foreach (lang C CXX)
-		if (${CMAKE_${lang}_COMPILER_ID} STREQUAL "CLang" OR
-		    ${CMAKE_${lang}_COMPILER_ID} STREQUAL "GNU" OR
-		    ${CMAKE_${lang}_COMPILER_ID} STREQUAL "Intel")
+	foreach (lang ${languages})
+		if ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Clang" OR
+		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "GNU" OR
+		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Intel")
 			set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} -Wall")
 
-		elseif (${CMAKE_${lang}_COMPILER_ID} STREQUAL "MSVC")
+		elseif ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "MSVC")
 			set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} /W3")
 
 		else ()
@@ -50,11 +64,25 @@ option(ENABLE_PEDANTIC
 )
 
 if (ENABLE_PEDANTIC)
+	# search for supported and enabled languages
+	get_property(ENABLED_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+
+	list(FIND ENABLED_LANGUAGES "C" LANG_C_ENABLED)
+	if (${LANG_C_ENABLED} EQUAL 0)
+		list(APPEND languages C)
+	endif ()
+
+	list(FIND ENABLED_LANGUAGES "CXX" LANG_CXX_ENABLED)
+	if (${LANG_CXX_ENABLED} EQUAL 0)
+		list(APPEND languages CXX)
+	endif ()
+
+
 	# Enable warnings for compilers
-	foreach (lang C CXX)
-		if (${CMAKE_${lang}_COMPILER_ID} STREQUAL "CLang" OR
-		    ${CMAKE_${lang}_COMPILER_ID} STREQUAL "GNU" OR
-		    ${CMAKE_${lang}_COMPILER_ID} STREQUAL "Intel")
+	foreach (lang ${languages})
+		if ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Clang" OR
+		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "GNU" OR
+		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Intel")
 			set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} -pedantic")
 
 		else ()
