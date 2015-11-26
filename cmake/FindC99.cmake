@@ -36,6 +36,7 @@ foreach (FLAG ${C99_FLAG_CANDIDATES})
 	endif()
 
 	unset(C99_FLAG_DETECTED CACHE)
+	set(CMAKE_REQUIRED_FLAGS "${FLAG}")
 	check_c_compiler_flag("${FLAG}" C99_FLAG_DETECTED)
 	if (C99_FLAG_DETECTED)
 		set(C99_FLAGS "${FLAG}" CACHE STRING "C compiler flags for C99")
