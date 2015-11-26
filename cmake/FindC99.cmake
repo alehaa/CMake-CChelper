@@ -35,6 +35,7 @@ foreach (FLAG ${C99_FLAG_CANDIDATES})
 		message(STATUS "Try C99 flag = [${FLAG}]")
 	endif()
 
+	unset(C99_FLAG_DETECTED CACHE)
 	check_c_compiler_flag("${FLAG}" C99_FLAG_DETECTED)
 	if (C99_FLAG_DETECTED)
 		set(C99_FLAGS "${FLAG}" CACHE STRING "C compiler flags for C99")
