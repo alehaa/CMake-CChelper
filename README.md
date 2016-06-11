@@ -1,5 +1,8 @@
 # CMake-CChelper
 
+[![](https://img.shields.io/github/issues-raw/alehaa/CMake-CChelper.svg?style=flat-square)](https://github.com/alehaa/CMake-CChelper/issues)
+[![3-clause BSD license](http://img.shields.io/badge/license-3_clause_BSD-blue.svg?style=flat-square)](LICENSE)
+
 CMake module to enable compiler features compiler independent.
 
 
@@ -40,8 +43,6 @@ To change the default values you can set the following variables **before** you 
 
 If you want to define own compiler flags, you have to change nothing for this: All flags set by this module will be appended only to ```CMAKE_${lang}_FLAGS```.
 
-## Example:
-
 ```CMake
 # setup CChelper
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/CMake-CChelper/cmake" ${CMAKE_MODULE_PATH})
@@ -61,6 +62,20 @@ include(CChelper)
 
 # recurse into subdirectories
 add_subdirectory(src)
+```
+
+#### Optional modules
+
+**C99**:
+Use ``find_package(C99)`` to find C99 compile flags for your compiler. If C99 compile flags were found, ``C99_FOUND`` will be set to true and you can add ``C99_FLAGS`` to the targets compile flags. The ``REQUIRED`` flag of ``find_package`` is supported.
+
+```CMake
+# setup CChelper C99 module
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/externals/CMake-CChelper/cmake" ${CMAKE_MODULE_PATH})
+find_package(C99 REQUIRED)
+
+add_definitions(${C99_FLAGS}) # Enable C99 for all targets.
+add_executable(c99-test test.c)
 ```
 
 ## Copyright
