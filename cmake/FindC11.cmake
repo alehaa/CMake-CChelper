@@ -8,6 +8,7 @@
 #
 
 include(CheckCCompilerFlag)
+include(CheckCSourceCompiles)
 include(CheckSymbolExists)
 include(FindPackageHandleStandardArgs)
 
@@ -46,22 +47,31 @@ endif ()
 
 # Search for optional components.
 if (C11_FLAGS)
-	set(CMAKE_REQUIRED_QUIET_SAVE ${CMAKE_REQUIRED_QUIET})
-	set(CMAKE_REQUIRED_QUIET true)
+	set(CMAKE_REQUIRED_FLAGS "${C11_FLAGS}")
 
 	foreach (component IN LISTS C11_FIND_COMPONENTS)
 		string(TOUPPER ${component} comp_upper)
 
-		if (component STREQUAL "atomics" OR component STREQUAL "complex"
-		    OR component STREQUAL "threads" OR component STREQUAL "vla")
-			check_symbol_exists("__STDC_NO_${comp_upper}__" ""
-			                    HAVE_NO_C11_${comp_upper})
+		if (component STREQUAL "atomics")
+			# atomics need a special check, if stdatomic.h is available due a
+			# bug in GCC versions before 4.9.
+			check_c_source_compiles("
+				#include <stdatomic.h>
 
-			if (NOT HAVE_NO_C11_${comp_upper})
-				set(C11_${component}_FOUND true CACHE STRING
-				    "Wheter C11 ${component} was found.")
-				mark_as_advanced(C11_${component}_FOUND)
-			endif ()
+				#ifndef __STDC_NO_ATOMICS__
+				int main () {}
+				#endif
+				"
+				C11_${component}_FOUND)
+
+		elseif (component STREQUAL "complex" OR component STREQUAL "threads"
+		        OR component STREQUAL "vla")
+			check_c_source_compiles("
+				#ifndef __STDC_NO_${comp_upper}__
+				int main () {}
+				#endif
+				"
+				C11_${component}_FOUND)
 
 		elseif (component STREQUAL "analyzable" OR component STREQUAL "iec_559"
 		        OR component STREQUAL "iec_559_complex")
@@ -73,7 +83,7 @@ if (C11_FLAGS)
 		endif ()
 	endforeach ()
 
-	set(CMAKE_REQUIRED_QUIET ${C11_FIND_QUIETLY})
+	unset(CMAKE_REQUIRED_FLAGS)
 endif ()
 
 
