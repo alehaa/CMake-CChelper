@@ -78,6 +78,19 @@ add_definitions(${C99_FLAGS}) # Enable C99 for all targets.
 add_executable(c99-test test.c)
 ```
 
+**C11**:
+Use `find_package(C11)` to find C11 compile flags. If C11 compile flags have been found, `C11_FOUND` will be set to true and you can add `C11_FLAGS` to the targets compile flags. You may search for the following optional C11 features with the `COMPONENTS` or `OPTIONAL_COMPONENTS` flag in `find_package`:
+
+* `ANALYZABLE`: Analyzability (Annex L)
+* `ATOMICS`: Atomic primitives and types (`<stdatomic.h>` and the `_Atomic` type qualifier)
+* `COMPLEX`: Complex types (`<complex.h>`)
+* `IEC_559`: IEC 60559 floating-point arithmetic (Annex F)
+* `IEC_559_COMPLEX`: IEC 60559 compatible complex arithmetic (Annex G)
+* `THREADS`: Multithreading (`<threads.h>`)
+* `THREAD_LOCAL`: `_Thread_local` type qualifier
+* `VLA`: Variable length arrays
+
+
 ## Copyright
 
 Copyright (c) 2015 [Alexander Haase](alexander.haase@rwth-aachen.de).
