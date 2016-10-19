@@ -67,6 +67,7 @@ add_subdirectory(src)
 #### Optional modules
 
 **C99**:
+
 Use ``find_package(C99)`` to find C99 compile flags for your compiler. If C99 compile flags were found, ``C99_FOUND`` will be set to true and you can add ``C99_FLAGS`` to the targets compile flags. The ``REQUIRED`` flag of ``find_package`` is supported.
 
 ```CMake
@@ -79,6 +80,7 @@ add_executable(c99-test test.c)
 ```
 
 **C11**:
+
 Use `find_package(C11)` to find C11 compile flags. If C11 compile flags have been found, `C11_FOUND` will be set to true and you can add `C11_FLAGS` to the targets compile flags. You may search for the following optional C11 features with the `COMPONENTS` or `OPTIONAL_COMPONENTS` flag in `find_package`:
 
 * `ANALYZABLE`: Analyzability (Annex L)
@@ -89,6 +91,20 @@ Use `find_package(C11)` to find C11 compile flags. If C11 compile flags have bee
 * `THREADS`: Multithreading (`<threads.h>`)
 * `THREAD_LOCAL`: `_Thread_local` type qualifier
 * `VLA`: Variable length arrays
+
+**BuiltinAtomic**:
+
+Use `find_package(BuiltinAtomic)` to check if the compiler has support for the `__atomic` functions. `BUILTINATOMIC_FOUND` will be set to true, if the compiler supports them.
+
+
+**BuiltinSync**:
+
+Use `find_package(BuiltinSync)` to check if the compiler has support for the `__sync` functions. `BUILTINSYNC_FOUND` will be set to true, if the compiler supports them.
+
+
+**BuiltinAtomic**:
+
+Use `find_package(ThreadKeyword)` to check if the compiler has support for the `__thread` storage class keyword. `THREADKEYWORD_FOUND` will be set to true, if the compiler supports it.
 
 
 ## Copyright
