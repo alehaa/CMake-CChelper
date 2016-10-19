@@ -50,36 +50,54 @@ if (C11_FLAGS)
 	set(CMAKE_REQUIRED_FLAGS "${C11_FLAGS}")
 
 	foreach (component IN LISTS C11_FIND_COMPONENTS)
-		string(TOUPPER ${component} comp_upper)
+		string(TOUPPER ${component} component)
 
-		if (component STREQUAL "atomics")
+		if (component STREQUAL "ATOMICS")
 			# atomics need a special check, if stdatomic.h is available due a
 			# bug in GCC versions before 4.9.
 			check_c_source_compiles("
-				#include <stdatomic.h>
-
 				#ifndef __STDC_NO_ATOMICS__
+				#include <stdatomic.h>
 				int main () {}
 				#endif
 				"
-				C11_${component}_FOUND)
+			C11_ATOMICS_FOUND)
 
-		elseif (component STREQUAL "complex" OR component STREQUAL "threads"
-		        OR component STREQUAL "vla")
+		elseif (component STREQUAL "THREADS")
+			# threads need a special check, if threads.h is available due a
+			# bug in GCC versions before 4.7.
 			check_c_source_compiles("
-				#ifndef __STDC_NO_${comp_upper}__
+				#ifndef __STDC_NO_THREDAS__
+				#include <threads.h>
+				int main () {}
+				#endif
+				"
+			C11_THREADS_FOUND)
+
+		elseif (component STREQUAL "THREAD_LOCAL")
+			# _Thread_local needs a special check, as some compilers (e.g. gcc)
+			# do not support C11 threads but thread local storage.
+			check_c_source_compiles("
+				_Thread_local int i;
+				int main () {}
+				"
+			C11_THREAD_LOCAL_FOUND)
+
+		elseif (component STREQUAL "COMPLEX" OR component STREQUAL "VLA")
+			check_c_source_compiles("
+				#ifndef __STDC_NO_${component}__
 				int main () {}
 				#endif
 				"
 				C11_${component}_FOUND)
 
-		elseif (component STREQUAL "analyzable" OR component STREQUAL "iec_559"
-		        OR component STREQUAL "iec_559_complex")
-			check_symbol_exists("__STDC_${comp_upper}__" ""
+		elseif (component STREQUAL "ANALYZABLE" OR component STREQUAL "IEC_559"
+		        OR component STREQUAL "IEC_559_COMPLEX")
+			check_symbol_exists("__STDC_${component}__" ""
 			                    C11_${component}_FOUND)
 
-		else (component STREQUAL "bounds")
-			check_symbol_exists("__STDC_LIB_EXT1__" "" C11_bounds_FOUND)
+		else (component STREQUAL "BOUNDS")
+			check_symbol_exists("__STDC_LIB_EXT1__" "" C11_BOUNDS_FOUND)
 		endif ()
 	endforeach ()
 
