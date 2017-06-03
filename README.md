@@ -2,8 +2,9 @@
 
 [![](https://img.shields.io/github/issues-raw/alehaa/CMake-CChelper.svg?style=flat-square)](https://github.com/alehaa/CMake-CChelper/issues)
 [![3-clause BSD license](http://img.shields.io/badge/license-3_clause_BSD-blue.svg?style=flat-square)](LICENSE)
+![](http://img.shields.io/badge/CMake_required-2.6-lightgrey.svg?style=flat-square)
 
-CMake module to enable compiler features compiler independent.
+CMake module to enable compiler features depending on the used compiler.
 
 
 
@@ -24,7 +25,7 @@ If you don't use git or dislike submodules you can copy the [CCHelper.cmake](cma
 
 ## Usage
 
-The Usage of [CCHelper.cmake](cmake/CChelper.cmake) is really easy: simply include [CCHelper.cmake](cmake/CChelper.cmake) before you call ```add_subdirectory``` for your source directory.
+The Usage of [CCHelper.cmake](cmake/CChelper.cmake) is really easy: simply include [CCHelper.cmake](cmake/CChelper.cmake) before you call ```add_subdirectory``` for your source directory. See the examples below.
 
 
 The following options will be added to your CMake project:
@@ -81,6 +82,7 @@ add_definitions(${C99_FLAGS}) # Enable C99 for all targets.
 add_executable(c99-test test.c)
 ```
 
+
 **C11**:
 
 Use `find_package(C11)` to find C11 compile flags. If C11 compile flags have been found, `C11_FOUND` will be set to true and you can add `C11_FLAGS` to the targets compile flags. You may search for the following optional C11 features with the `COMPONENTS` or `OPTIONAL_COMPONENTS` flag in `find_package`:
@@ -93,6 +95,7 @@ Use `find_package(C11)` to find C11 compile flags. If C11 compile flags have bee
 * `THREADS`: Multithreading (`<threads.h>`)
 * `THREAD_LOCAL`: `_Thread_local` type qualifier
 * `VLA`: Variable length arrays
+
 
 **BuiltinAtomic**:
 
@@ -111,8 +114,6 @@ Use `find_package(ThreadKeyword)` to check if the compiler has support for the `
 
 ## Copyright
 
-Copyright (c) 2015 [Alexander Haase](alexander.haase@rwth-aachen.de).
+Copyright &copy; 2015-2017 [Alexander Haase](alexander.haase@rwth-aachen.de).
 
 See the [LICENSE](LICENSE) file in the base directory for details.
-
-All rights reserved.
