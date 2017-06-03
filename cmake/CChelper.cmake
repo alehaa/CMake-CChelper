@@ -73,11 +73,7 @@ macro (cchelper_check_for_flags FLAG_CANDIDATES NAME)
 				if (${NAME}_FLAG_DETECTED)
 					set(${NAME}_${COMPILER}_FLAGS "${FLAG}" CACHE STRING
 						"${NAME} flags for ${COMPILER} compiler.")
-					mark_as_advanced(${PREFIX}_${COMPILER}_FLAGS)
-
-					# Add the compiler flags to the list of compiler flags to be
-					# used by following targets.
-					set(CMAKE_${LANG}_FLAGS "${CMAKE_${lang}_FLAGS} ${FLAG}")
+					mark_as_advanced(${NAME}_${COMPILER}_FLAGS)
 					break()
 				endif ()
 			endforeach ()
@@ -85,6 +81,13 @@ macro (cchelper_check_for_flags FLAG_CANDIDATES NAME)
 			if (NOT ${NAME}_FLAG_DETECTED)
 				message("${NAME} is not available for ${COMPILER} compiler.")
 			endif ()
+		endif ()
+
+		# Add the compiler flags to the list of compiler flags to be used by
+		# following targets.
+		if (DEFINED ${NAME}_${COMPILER}_FLAGS)
+			set(CMAKE_${LANG}_FLAGS
+			    "${CMAKE_${LANG}_FLAGS} ${${NAME}_${COMPILER}_FLAGS}")
 		endif ()
 	endforeach ()
 endmacro ()
