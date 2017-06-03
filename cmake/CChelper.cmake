@@ -7,6 +7,90 @@
 # All rights reserved.
 #
 
+## \brief Helper function to check if \p LANG compiler supports \p FLAG.
+#
+#
+# \param FLAG The flag to be checked.
+# \param LANG The language to be checked.
+# \param [out] VARIABLE Where to store the result.
+#
+function (cchelper_check_compiler_flag FLAG LANG VARIABLE)
+	if (${LANG} STREQUAL "C")
+		include(CheckCCompilerFlag)
+		check_c_compiler_flag("${FLAG}" ${VARIABLE})
+
+	elseif (${LANG} STREQUAL "CXX")
+		include(CheckCXXCompilerFlag)
+		check_cxx_compiler_flag("${FLAG}" ${VARIABLE})
+
+	elseif (${LANG} STREQUAL "Fortran")
+		# CheckFortranCompilerFlag was introduced in CMake 3.x. To be compatible
+		# with older Cmake versions, we will check if this module is present
+		# before we use it. Otherwise we will define Fortran coverage support as
+		# not available.
+		include(CheckFortranCompilerFlag OPTIONAL RESULT_VARIABLE INCLUDED)
+		if (INCLUDED)
+			check_fortran_compiler_flag("${FLAG}" ${VARIABLE})
+		elseif (NOT CMAKE_REQUIRED_QUIET)
+			message(STATUS "Performing Test ${VARIABLE}")
+			message(STATUS "Performing Test ${VARIABLE}"
+			               " - Failed (Check not supported)")
+		endif ()
+	endif()
+endfunction ()
+
+
+## \brief Check an array of possible flags for all available compilers.
+#
+# \details This macro checks possible compiler flags for the available
+#  compilers. If a suitable flag has been found, it will be added to the
+#  language specific compile flags.
+#
+#
+# \param NAME What flags will be searched, e.g. Wall.
+# \param FLAGS List of possible flags.
+#
+macro (cchelper_check_for_flags FLAG_CANDIDATES NAME)
+	# Iterate over the list of enabled languages. For each enabled language the
+	# list of compiler flags will be checked.
+	get_property(ENABLED_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+	foreach (LANG ${ENABLED_LANGUAGES})
+		# The flags are not dependend on language, but the used compiler. So
+		# instead of searching flags foreach language, search flags foreach
+		# compiler used.
+		set(COMPILER ${CMAKE_${LANG}_COMPILER_ID})
+		if (NOT DEFINED ${NAME}_${COMPILER}_FLAGS)
+			foreach (FLAG ${FLAG_CANDIDATES})
+				if (NOT CMAKE_REQUIRED_QUIET)
+					message(STATUS "Try ${COMPILER} ${NAME} flag = [${FLAG}]")
+				endif()
+
+				set(CMAKE_REQUIRED_FLAGS "${FLAG}")
+				unset(${NAME}_FLAG_DETECTED CACHE)
+				cchelper_check_compiler_flag("${FLAG}" ${LANG}
+				                             ${NAME}_FLAG_DETECTED)
+
+				if (${NAME}_FLAG_DETECTED)
+					set(${NAME}_${COMPILER}_FLAGS "${FLAG}" CACHE STRING
+						"${NAME} flags for ${COMPILER} compiler.")
+					mark_as_advanced(${PREFIX}_${COMPILER}_FLAGS)
+
+					# Add the compiler flags to the list of compiler flags to be
+					# used by following targets.
+					set(CMAKE_${LANG}_FLAGS "${CMAKE_${lang}_FLAGS} ${FLAG}")
+					break()
+				endif ()
+			endforeach ()
+
+			if (NOT ${NAME}_FLAG_DETECTED)
+				message("${NAME} is not available for ${COMPILER} compiler.")
+			endif ()
+		endif ()
+	endforeach ()
+endmacro ()
+
+
+
 
 # Enable compiler warnings. A default option can be set via the
 # CCHELPER_ENABLE_WARNINGS variable. Set it before including this file.
@@ -20,40 +104,11 @@ option(ENABLE_WARNINGS
 )
 
 if (ENABLE_WARNINGS)
-	# search for supported and enabled languages
-	get_property(ENABLED_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
-
-	list(FIND ENABLED_LANGUAGES "C" LANG_C_ENABLED)
-	if (${LANG_C_ENABLED} EQUAL 0)
-		list(APPEND languages C)
-	endif ()
-
-	list(FIND ENABLED_LANGUAGES "CXX" LANG_CXX_ENABLED)
-	if (${LANG_CXX_ENABLED} EQUAL 0)
-		list(APPEND languages CXX)
-	endif ()
-
-
-	# Enable warnings for compilers
-	list(REMOVE_DUPLICATES languages)
-	foreach (lang ${languages})
-		if ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Clang" OR
-		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "GNU" OR
-		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Intel")
-			set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} -Wall")
-
-		elseif ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "MSVC")
-			set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} /W3")
-
-		else ()
-			message(WARNING
-				"Did not find a warning-flag for used ${lang} compiler.")
-		endif ()
-	endforeach()
+	cchelper_check_for_flags("-Wall;/W3" warning)
 endif (ENABLE_WARNINGS)
 
 
-# Enable pedantic errors. A default option can be set via the
+# Enable pedantic warnings. A default option can be set via the
 # CCHELPER_ENABLE_PEDANTIC variable. Set it before including this file.
 if (NOT DEFINED CCHELPER_ENABLE_PEDANTIC)
 	set(CCHELPER_ENABLE_PEDANTIC true)
@@ -65,31 +120,21 @@ option(ENABLE_PEDANTIC
 )
 
 if (ENABLE_PEDANTIC)
-	# search for supported and enabled languages
-	get_property(ENABLED_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
-
-	list(FIND ENABLED_LANGUAGES "C" LANG_C_ENABLED)
-	if (${LANG_C_ENABLED} EQUAL 0)
-		list(APPEND languages C)
-	endif ()
-
-	list(FIND ENABLED_LANGUAGES "CXX" LANG_CXX_ENABLED)
-	if (${LANG_CXX_ENABLED} EQUAL 0)
-		list(APPEND languages CXX)
-	endif ()
-
-
-	# Enable warnings for compilers
-	list(REMOVE_DUPLICATES languages)
-	foreach (lang ${languages})
-		if ("${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Clang" OR
-		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "GNU" OR
-		    "${CMAKE_${lang}_COMPILER_ID}" STREQUAL "Intel")
-			set(CMAKE_${lang}_FLAGS "${CMAKE_${lang}_FLAGS} -pedantic")
-
-		else ()
-			message(WARNING
-			"Did not find a pedantic-flag for used ${lang} compiler.")
-		endif ()
-	endforeach()
+	cchelper_check_for_flags("-pedantic" pedantic)
 endif (ENABLE_PEDANTIC)
+
+
+# Enable warning to error conversion. A default option can be set via the
+# CCHELPER_ENABLE_WARNING_TO_ERROR variable. Set it before including this file.
+if (NOT DEFINED CCHELPER_ENABLE_WARNINGS_TO_ERRORS)
+	set(CCHELPER_ENABLE_WARNINGS_TO_ERRORS true)
+endif ()
+
+option(ENABLE_WARNINGS_TO_ERRORS
+	"Selects whether warnings should be converted to errors."
+	${CCHELPER_ENABLE_WARNINGS_TO_ERRORS}
+)
+
+if (ENABLE_WARNINGS_TO_ERRORS)
+	cchelper_check_for_flags("-Werror" warning_to_error)
+endif (ENABLE_WARNINGS_TO_ERRORS)

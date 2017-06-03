@@ -32,6 +32,7 @@ The following options will be added to your CMake project:
 | option | description |default value|
 |--------|-------------|-------------|
 |```ENABLE_WARNINGS```|Selects whether compiler warnings are enabled.|On|
+|```ENABLE_WARNINGS_TO_ERRORS```|Selects whether warnings should be converted to errors.|On|
 |```ENABLE_PEDANTIC```|Selects whether pedantic warnings are enabled.|On|
 
 To change the default values you can set the following variables **before** you include [CCHelper.cmake](cmake/CChelper.cmake) to true or false:
@@ -39,6 +40,7 @@ To change the default values you can set the following variables **before** you 
 | variable | description |
 |--------|-------------|
 |```CCHELPER_ENABLE_WARNINGS```|Default value for ```ENABLE_WARNINGS```.|
+|```CCHELPER_ENABLE_WARNINGS_TO_ERRORS```|Default value for ```ENABLE_WARNINGS_TO_ERRORS```.|
 |```CCHELPER_ENABLE_PEDANTIC```|Default value for ```ENABLE_PEDANTIC```.|
 
 If you want to define own compiler flags, you have to change nothing for this: All flags set by this module will be appended only to ```CMAKE_${lang}_FLAGS```.
