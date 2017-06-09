@@ -59,7 +59,7 @@ macro (cchelper_check_for_flags FLAG_CANDIDATES NAME)
 		# instead of searching flags foreach language, search flags foreach
 		# compiler used.
 		set(COMPILER ${CMAKE_${LANG}_COMPILER_ID})
-		if (NOT DEFINED ${NAME}_${COMPILER}_FLAGS)
+		if (NOT DEFINED ${NAME}_${COMPILER}_FLAGS AND COMPILER)
 			foreach (FLAG ${FLAG_CANDIDATES})
 				if (NOT CMAKE_REQUIRED_QUIET)
 					message(STATUS "Try ${COMPILER} ${NAME} flag = [${FLAG}]")
