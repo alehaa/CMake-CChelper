@@ -26,24 +26,22 @@ endif ()
 
 # If flags for this compiler were already found, do not try to find them
 # again.
-if (C99_FLAGS)
-	return()
+if (NOT C99_FLAGS)
+	foreach (FLAG ${C99_FLAG_CANDIDATES})
+		if(NOT CMAKE_REQUIRED_QUIET)
+			message(STATUS "Try C99 flag = [${FLAG}]")
+		endif()
+
+		unset(C99_FLAG_DETECTED CACHE)
+		set(CMAKE_REQUIRED_FLAGS "${FLAG}")
+		check_c_compiler_flag("${FLAG}" C99_FLAG_DETECTED)
+		unset(CMAKE_REQUIRED_FLAGS)
+		if (C99_FLAG_DETECTED)
+			set(C99_FLAGS "${FLAG}" CACHE STRING "C compiler flags for C99")
+			break()
+		endif ()
+	endforeach ()
 endif ()
-
-foreach (FLAG ${C99_FLAG_CANDIDATES})
-	if(NOT CMAKE_REQUIRED_QUIET)
-		message(STATUS "Try C99 flag = [${FLAG}]")
-	endif()
-
-	unset(C99_FLAG_DETECTED CACHE)
-	set(CMAKE_REQUIRED_FLAGS "${FLAG}")
-	check_c_compiler_flag("${FLAG}" C99_FLAG_DETECTED)
-	unset(CMAKE_REQUIRED_FLAGS)
-	if (C99_FLAG_DETECTED)
-		set(C99_FLAGS "${FLAG}" CACHE STRING "C compiler flags for C99")
-		break()
-	endif ()
-endforeach ()
 
 
 find_package_handle_standard_args(C99 REQUIRED_VARS C99_FLAGS)
